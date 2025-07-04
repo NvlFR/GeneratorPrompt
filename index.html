@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Generator AMF</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0f23 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        color: #e4e4e7;
+        line-height: 1.6;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: rgba(30, 30, 46, 0.9);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+
+      .header {
+        background: linear-gradient(
+          135deg,
+          #6366f1 0%,
+          #8b5cf6 50%,
+          #ec4899 100%
+        );
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.1) 50%,
+          transparent 70%
+        );
+        animation: shimmer 3s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% {
+          transform: translateX(-100%);
+        }
+        50% {
+          transform: translateX(100%);
+        }
+      }
+
+      .header h1 {
+        font-size: 2.8em;
+        margin-bottom: 10px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        z-index: 1;
+      }
+
+      .header p {
+        font-size: 1.2em;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+      }
+
+      .form-container {
+        padding: 50px;
+        background: rgba(15, 15, 35, 0.5);
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 30px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group label {
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #d4d4d8;
+        font-size: 1.1em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 16px 20px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        font-size: 1em;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        background: rgba(30, 30, 46, 0.8);
+        color: #e4e4e7;
+        backdrop-filter: blur(10px);
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2),
+          0 8px 25px rgba(99, 102, 241, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .form-group input::placeholder,
+      .form-group textarea::placeholder {
+        color: #71717a;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .form-group select {
+        cursor: pointer;
+      }
+
+      .form-group select option {
+        background: #1e1e2e;
+        color: #e4e4e7;
+      }
+
+      .tech-section {
+        background: rgba(30, 30, 46, 0.7);
+        padding: 30px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .tech-section h3 {
+        margin-bottom: 20px;
+        color: #d4d4d8;
+        font-size: 1.3em;
+        font-weight: 700;
+      }
+
+      .tech-checkboxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .tech-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .tech-checkbox:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .tech-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #6366f1;
+      }
+
+      .tech-checkbox label {
+        cursor: pointer;
+        margin-bottom: 0;
+        font-weight: 500;
+        color: #e4e4e7;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 40px;
+      }
+
+      .btn {
+        padding: 18px 35px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s ease;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          #6366f1 0%,
+          #8b5cf6 50%,
+          #ec4899 100%
+        );
+        color: white;
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(55, 65, 81, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(55, 65, 81, 0.4);
+      }
+
+      .btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+      }
+
+      .btn-success:hover {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+      }
+
+      .output-section {
+        margin-top: 40px;
+        padding: 40px;
+        background: rgba(15, 15, 35, 0.7);
+        border-top: 3px solid #6366f1;
+        backdrop-filter: blur(10px);
+      }
+
+      .output-section h3 {
+        margin-bottom: 25px;
+        color: #d4d4d8;
+        font-size: 1.6em;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .output-container {
+        position: relative;
+      }
+
+      .output-box {
+        background: rgba(30, 30, 46, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 30px;
+        font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+        font-size: 0.95em;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        max-height: 600px;
+        overflow-y: auto;
+        color: #e4e4e7;
+        backdrop-filter: blur(10px);
+        box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .output-box::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .output-box::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+      }
+
+      .output-box::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.6);
+        border-radius: 10px;
+      }
+
+      .output-box::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.8);
+      }
+
+      .output-buttons {
+        display: flex;
+        gap: 20px;
+        margin-top: 25px;
+        justify-content: center;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .copy-success {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 20px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 1000;
+        animation: fadeInOut 2.5s ease-in-out;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+      }
+
+      @keyframes fadeInOut {
+        0%,
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.9);
+        }
+        50% {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+        }
+
+        .header {
+          padding: 30px 20px;
+        }
+
+        .header h1 {
+          font-size: 2.2em;
+        }
+
+        .form-container {
+          padding: 30px 20px;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+        }
+
+        .tech-checkboxes {
+          grid-template-columns: 1fr;
+        }
+
+        .output-section {
+          padding: 30px 20px;
+        }
+      }
+
+      /* Glow effects for modern look */
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        background: rgba(30, 30, 46, 0.95);
+      }
+
+      .tech-checkbox:has(input:checked) {
+        background: rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+      }
+
+      /* Animated background particles */
+      .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(99, 102, 241, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(139, 92, 246, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 80%,
+            rgba(236, 72, 153, 0.1) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🚀 Prompt Generator AMF</h1>
+        <p>
+          Generate High-Quality Prompts for AI Management Financial Development
+        </p>
+      </div>
+
+      <div class="form-container">
+        <form id="promptForm" class="form-grid">
+          <div class="form-group">
+            <label for="projectName">📌 Nama Project</label>
+            <input type="text" id="projectName" value="AMF" required />
+          </div>
+
+          <div class="form-group">
+            <label for="moduleName">📦 Nama Modul</label>
+            <input type="text" id="moduleName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="submoduleName">🧩 Nama Submodul</label>
+            <input type="text" id="submoduleName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="featureName">⚙️ Nama Fitur</label>
+            <input type="text" id="featureName" required />
+          </div>
+
+          <div class="form-group">
+            <label for="featureDescription">🎯 Deskripsi Fitur</label>
+            <textarea
+              id="featureDescription"
+              placeholder="Jelaskan tujuan dan fungsi fitur secara detail..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="tech-section">
+            <h3>🧪 Teknologi yang Digunakan</h3>
+            <div class="tech-checkboxes">
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-nodejs" value="Node.js" />
+                <label for="tech-nodejs">Node.js</label>
+              </div>
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-express" value="Express.js" />
+                <label for="tech-express">Express.js</label>
+              </div>
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-react" value="React" />
+                <label for="tech-react">React</label>
+              </div>
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-mongodb" value="MongoDB" />
+                <label for="tech-mongodb">MongoDB</label>
+              </div>
+              <div class="tech-checkbox">
+                <input
+                  type="checkbox"
+                  id="tech-whatsapp"
+                  value="WhatsApp API"
+                />
+                <label for="tech-whatsapp">WhatsApp API</label>
+              </div>
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-openai" value="OpenAI API" />
+                <label for="tech-openai">OpenAI API</label>
+              </div>
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-jwt" value="JWT" />
+                <label for="tech-jwt">JWT</label>
+              </div>
+              <div class="tech-checkbox">
+                <input type="checkbox" id="tech-redis" value="Redis" />
+                <label for="tech-redis">Redis</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="customTech"
+                >Teknologi Lainnya (pisahkan dengan koma)</label
+              >
+              <input
+                type="text"
+                id="customTech"
+                placeholder="Docker, Kubernetes, GraphQL, etc."
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="specialNotes"
+              >🗒️ Catatan Khusus atau Larangan (Opsional)</label
+            >
+            <textarea
+              id="specialNotes"
+              placeholder="Tambahkan catatan khusus, larangan, atau requirement spesifik..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="promptType">📝 Jenis Prompt</label>
+            <select id="promptType" required>
+              <option value="">Pilih jenis prompt...</option>
+              <option value="initial">Prompt Pembuatan Awal</option>
+              <option value="continue">Prompt Melanjutkan Project</option>
+              <option value="newtab">Prompt Pindah Tab Baru</option>
+            </select>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn btn-primary">
+              🔥 Generate Prompt
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="resetForm()"
+            >
+              🔄 Reset Form
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="outputSection" class="output-section hidden">
+        <h3>📄 Generated Prompt</h3>
+        <div class="output-container">
+          <pre id="outputBox" class="output-box"></pre>
+          <div class="output-buttons">
+            <button class="btn btn-success" onclick="copyToClipboard()">
+              📋 Copy Prompt
+            </button>
+            <button class="btn btn-secondary" onclick="hideOutput()">
+              ❌ Hide Output
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Template Prompts
+      const templates = {
+        initial: `Saya sedang membangun proyek besar bernama {{project}}, sebuah layanan keuangan berbasis AI yang memungkinkan pengguna mengatur keuangan langsung melalui WhatsApp.
+
+Saat ini saya ingin memulai pembangunan fitur baru dari awal.
+
+📦 Modul: {{modul}}
+🧩 Submodul: {{submodul}}
+⚙️ Fitur: {{fitur}}
+
+🎯 Tujuan Fitur:
+{{deskripsi}}
+
+🧪 Stack Teknologi: {{stack}}
+🚫 Catatan Khusus: {{catatan}}
+
+Tolong bantu saya membangun fitur ini dari awal secara lengkap, meliputi:
+
+• Struktur direktori dan file
+• Penamaan komponen dan file sesuai standar industri
+• Kode dasar (boilerplate) untuk logika awal
+• Integrasi dengan stack teknologi yang disebutkan
+• Penjelasan untuk tiap bagian penting
+• Gaya penulisan bersih, modular, dan scalable`,
+
+        continue: `Saya sedang melanjutkan pengerjaan proyek {{project}}.
+
+Berikut adalah fitur yang sedang dikembangkan:
+
+📦 Modul: {{modul}}
+🧩 Submodul: {{submodul}}
+⚙️ Fitur: {{fitur}}
+
+🧠 Konteks Fitur:
+{{deskripsi}}
+
+🧪 Stack Teknologi: {{stack}}
+🗒️ Catatan Khusus: {{catatan}}
+
+Mohon bantu saya melanjutkan pengembangan fitur ini dengan fokus pada:
+
+• Menyempurnakan bagian yang belum selesai
+• Menambahkan fungsi lanjutan yang diperlukan
+• Menjaga konsistensi gaya penulisan dan struktur file
+• Menghindari duplikasi logika
+
+Jika ada asumsi yang diperlukan, tolong buat dengan logika yang realistis dan beri penjelasan tambahan.`,
+
+        newtab: `Saya sedang mengembangkan proyek {{project}}, dan karena tab sebelumnya sudah mencapai batas, saya melanjutkan sesi ini di tab baru.
+
+🧾 Konteks pekerjaan sebelumnya:
+
+📦 Modul: {{modul}}
+🧩 Submodul: {{submodul}}
+⚙️ Fitur: {{fitur}}
+
+📌 Tujuan Fitur:
+{{deskripsi}}
+
+🧪 Stack Teknologi: {{stack}}
+🗒️ Catatan: {{catatan}}
+
+Mohon lanjutkan proses pengembangan fitur ini:
+
+• Tanpa mengulang konteks yang sudah dijelaskan
+• Tetap menggunakan struktur, format, dan stack yang sudah digunakan
+• Fokus langsung pada kelanjutan logika, integrasi, atau perbaikan
+• Pastikan prompt ini melanjutkan pekerjaan sebelumnya secara utuh dan tidak kontradiktif.`,
+      };
+
+      // Form submission handler
+      document
+        .getElementById("promptForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          generatePrompt();
+        });
+
+      function generatePrompt() {
+        // Get form values
+        const projectName = document.getElementById("projectName").value;
+        const moduleName = document.getElementById("moduleName").value;
+        const submoduleName = document.getElementById("submoduleName").value;
+        const featureName = document.getElementById("featureName").value;
+        const featureDescription =
+          document.getElementById("featureDescription").value;
+        const specialNotes = document.getElementById("specialNotes").value;
+        const promptType = document.getElementById("promptType").value;
+
+        // Get selected technologies
+        const selectedTech = [];
+        const techCheckboxes = document.querySelectorAll(
+          '.tech-checkbox input[type="checkbox"]:checked'
+        );
+        techCheckboxes.forEach((checkbox) => {
+          selectedTech.push(checkbox.value);
+        });
+
+        // Get custom technologies
+        const customTech = document.getElementById("customTech").value;
+        if (customTech) {
+          const customTechArray = customTech
+            .split(",")
+            .map((tech) => tech.trim());
+          selectedTech.push(...customTechArray);
+        }
+
+        const techStack = selectedTech.join(", ") || "Belum ditentukan";
+
+        // Validate required fields
+        if (
+          !projectName ||
+          !moduleName ||
+          !submoduleName ||
+          !featureName ||
+          !featureDescription ||
+          !promptType
+        ) {
+          alert("Mohon lengkapi semua field yang wajib diisi!");
+          return;
+        }
+
+        // Get template
+        const template = templates[promptType];
+        if (!template) {
+          alert("Jenis prompt tidak valid!");
+          return;
+        }
+
+        // Replace placeholders
+        let generatedPrompt = template
+          .replace(/\{\{project\}\}/g, projectName)
+          .replace(/\{\{modul\}\}/g, moduleName)
+          .replace(/\{\{submodul\}\}/g, submoduleName)
+          .replace(/\{\{fitur\}\}/g, featureName)
+          .replace(/\{\{deskripsi\}\}/g, featureDescription)
+          .replace(/\{\{stack\}\}/g, techStack)
+          .replace(
+            /\{\{catatan\}\}/g,
+            specialNotes || "Tidak ada catatan khusus"
+          );
+
+        // Display result
+        document.getElementById("outputBox").textContent = generatedPrompt;
+        document.getElementById("outputSection").classList.remove("hidden");
+
+        // Scroll to output
+        document
+          .getElementById("outputSection")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      function copyToClipboard() {
+        const outputBox = document.getElementById("outputBox");
+        const text = outputBox.textContent;
+
+        if (navigator.clipboard) {
+          navigator.clipboard
+            .writeText(text)
+            .then(function () {
+              showCopySuccess();
+            })
+            .catch(function () {
+              fallbackCopyToClipboard(text);
+            });
+        } else {
+          fallbackCopyToClipboard(text);
+        }
+      }
+
+      function fallbackCopyToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          document.execCommand("copy");
+          showCopySuccess();
+        } catch (err) {
+          alert("Gagal menyalin prompt. Silakan copy manual.");
+        }
+
+        document.body.removeChild(textArea);
+      }
+
+      function showCopySuccess() {
+        const successMessage = document.createElement("div");
+        successMessage.className = "copy-success";
+        successMessage.textContent = "✅ Prompt berhasil disalin ke clipboard!";
+        document.body.appendChild(successMessage);
+
+        setTimeout(() => {
+          document.body.removeChild(successMessage);
+        }, 2000);
+      }
+
+      function resetForm() {
+        document.getElementById("promptForm").reset();
+        document.getElementById("projectName").value = "AMF";
+        hideOutput();
+      }
+
+      function hideOutput() {
+        document.getElementById("outputSection").classList.add("hidden");
+      }
+
+      // Auto-resize textarea
+      document.addEventListener("input", function (e) {
+        if (e.target.tagName === "TEXTAREA") {
+          e.target.style.height = "auto";
+          e.target.style.height = e.target.scrollHeight + "px";
+        }
+      });
+    </script>
+  </body>
+</html>
